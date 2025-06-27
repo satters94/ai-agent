@@ -1,25 +1,41 @@
 import os
 
-
 def get_files_info(working_directory, directory=None):
-    abs_working_dir = os.path.abspath(working_directory)
-    target_dir = abs_working_dir
+    try:
+        working_dir_abs_path = os.path.abspath(working_directory)
+    except:
+        return f'Error: could not get absolute path for {working_directory}'
     if directory:
-        target_dir = os.path.abspath(os.path.join(working_directory, directory))
-    if not target_dir.startswith(abs_working_dir):
+        try:
+            dir_abs_path = os.path.abspath(os.path.join(working_directory, directory))
+        except:
+            return f'Error: could not get absolute path for {directory}'     
+    if not dir_abs_path.startswith(working_dir_abs_path):  
         return f'Error: Cannot list "{directory}" as it is outside the permitted working directory'
-    if not os.path.isdir(target_dir):
+    if len(dir_abs_path) > len(working_dir_abs_path):
+        next_char = dir_abs_path[len(working_dir_abs_path)]
+        if  next_char != "/" and next_char != "\\":
+            return f'Error: Cannot list "{directory}" as it is outside the permitted working directory2'
+    if not os.path.isdir(dir_abs_path):
         return f'Error: "{directory}" is not a directory'
     try:
-        files_info = []
-        for filename in os.listdir(target_dir):
-            filepath = os.path.join(target_dir, filename)
-            file_size = 0
-            is_dir = os.path.isdir(filepath)
-            file_size = os.path.getsize(filepath)
-            files_info.append(
-                f"- {filename}: file_size={file_size} bytes, is_dir={is_dir}"
-            )
-        return "\n".join(files_info)
-    except Exception as e:
-        return f"Error listing files: {e}"
+        dir_contents = os.listdir(dir_abs_path)
+    except:
+        return f'Error: could not get contents of {directory}'
+    
+    return_string_list = []
+    for content in dir_contents:
+        content_path = os.path.join(dir_abs_path, content)
+        return_string = "- "
+        return_string += f'{content}: '
+        try:
+            return_string += f'file_size={os.path.getsize(content_path)}, '
+        except:
+            return f'Error: could not get file size of {content_path}'
+        try:
+            return_string += f'is_dir={os.path.isdir(content_path)}'
+        except:
+            return f'Error: coult not check if {content_path} is a directory'
+        return_string_list.append(return_string)
+    final_return_string = "\n".join(return_string_list)
+    return final_return_string
