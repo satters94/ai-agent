@@ -15,7 +15,7 @@ def get_files_info(working_directory, directory=None):
     if len(dir_abs_path) > len(working_dir_abs_path):
         next_char = dir_abs_path[len(working_dir_abs_path)]
         if  next_char != "/" and next_char != "\\":
-            return f'Error: Cannot list "{directory}" as it is outside the permitted working directory2'
+            return f'Error: Cannot list "{directory}" as it is outside the permitted working directory'
     if not os.path.isdir(dir_abs_path):
         return f'Error: "{directory}" is not a directory'
     try:
